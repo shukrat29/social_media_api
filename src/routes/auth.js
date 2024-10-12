@@ -9,7 +9,17 @@ authRouter.post("/signup", async (req, res) => {
   try {
     // Validation of data
     validateSignUpData(req);
-    const { firstName, lastName, emailId, password } = req.body;
+    const {
+      firstName,
+      lastName,
+      emailId,
+      password,
+      age,
+      gender,
+      about,
+      photoUrl,
+      skills,
+    } = req.body;
 
     // Encrypt the password
     const passwordHash = await bcrypt.hash(password, 10);
@@ -17,11 +27,19 @@ authRouter.post("/signup", async (req, res) => {
       firstName,
       lastName,
       emailId,
+      photoUrl,
       password: passwordHash,
+      age,
+      gender,
+      about,
+      skills,
     });
     // Save the user to the database
-    await user.save();
-    res.send("User successfully added to database");
+    const savedUser = await user.save();
+    const token = await savedUser.getJWT();
+
+    res.cookie("token", token, { expires: new Date(Date.now() + 8 * 3600000) });
+    res.json({ message: "User added successfully!", data: savedUser });
   } catch (error) {
     res.status(400).send("ERROR:" + error.message);
   }
@@ -44,7 +62,7 @@ authRouter.post("/login", async (req, res) => {
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
       });
-      res.send("Login Successful");
+      res.send(user);
     } else {
       throw new Error("Incorrect email or password");
     }

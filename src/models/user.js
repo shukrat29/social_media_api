@@ -30,7 +30,7 @@ const userSchema = mongoose.Schema(
     },
     age: {
       type: Number,
-      min: 30,
+      min: 20,
     },
     gender: {
       type: String,
@@ -42,8 +42,8 @@ const userSchema = mongoose.Schema(
     },
     photoUrl: {
       type: String,
-      default:
-        "https://static.vecteezy.com/system/resources/thumbnails/008/442/086/small/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg",
+      // default:
+      // "https://static.vecteezy.com/system/resources/thumbnails/008/442/086/small/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg",
       validate(value) {
         if (!validator.isURL(value)) {
           throw new Error("Invalid Photo URL:" + value);
@@ -52,7 +52,6 @@ const userSchema = mongoose.Schema(
     },
     about: {
       type: String,
-      default: "This is a default about of the user",
     },
     skills: {
       type: [String],
@@ -62,6 +61,9 @@ const userSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+// compound indexes
+userSchema.index({ firstName: 1, lastName: 1 });
+userSchema.index({ gender: 1 });
 
 userSchema.methods.getJWT = async function () {
   const user = this;
